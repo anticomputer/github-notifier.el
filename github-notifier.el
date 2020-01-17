@@ -145,6 +145,26 @@ will return an API."
 ;; it by hitting C-g many times. This is very annoying.
 ;;
 ;; Maybe we can try to invoke curl(1) as asynchronous process.
+
+(defun github-notifier-elfeed-cb (_status)
+  ;; elfeed compatible notifications json parsing cb
+  (if (not _status)
+      (progn (message "[github-notifier] Problem connecting to the server")
+             (setq github-notifier-unread-count nil))
+    (let ((old-count github-notifier-unread-count)
+          (old-json github-notifier-unread-json))
+      (setq github-notifier-unread-json (json-read-from-string (buffer-string))
+            github-notifier-unread-count (length github-notifier-unread-json))
+      (when (> github-notifier-unread-count 0)
+        (setq github-notifier-last-notification (cdr (assoc 'updated_at (elt github-notifier-unread-json 0)))))
+      (unless (and (equal old-count github-notifier-unread-count)
+                   (github-notifier-notifications-checked))
+        (force-mode-line-update t))
+      (run-hook-with-args 'github-notifier-update-hook old-json)))
+  (when github-notifier-mode
+    (setq github-notifier-update-timer
+          (run-at-time github-notifier-update-interval nil #'github-notifier-update))))
+
 (defun github-notifier-update-cb (_status)
   (set-buffer-multibyte t)
   (goto-char (point-min))
@@ -167,12 +187,12 @@ will return an API."
       ;; Debug
       ;; (setq a-json-string json-str)
       ;; (message "Github notification %d unread, updated at %s"
-      ;;          github-notifier-unread-count (current-time-string))
+      ;;     github-notifier-unread-count (current-time-string))
       ))
   ;; Debug
   ;; (display-buffer (current-buffer))
   ;; elfeed curl handler doesn't want buffer killed
-  ;;(kill-buffer)
+  (kill-buffer)
   (when github-notifier-mode
     (setq github-notifier-update-timer
           (run-at-time github-notifier-update-interval nil #'github-notifier-update))))
@@ -187,7 +207,8 @@ will return an API."
                                                   "?participating=true")) t)))
       (condition-case error-data
           ;;(url-retrieve url #'github-notifier-update-cb nil t t)
-          (elfeed-curl-retrieve url #'github-notifier-update :headers url-request-extra-headers :method "GET")
+          ;;(elfeed-curl-retrieve url #'github-notifier-update-cb :headers url-request-extra-headers :method "GET")
+          (elfeed-curl-retrieve url #'github-notifier-elfeed-cb :headers url-request-extra-headers :method "GET")
         (error
          (message "Error retrieving github notification from %s: %s" url error-data)
          (when github-notifier-mode
