@@ -148,7 +148,8 @@ will return an API."
 
 (defun github-notifier-elfeed-cb (_status)
   ;; elfeed compatible notifications json parsing cb
-  (if (not _status)
+  (if (or (not _status)
+          (not (eq elfeed-curl-status-code 200)))
       (progn (message "[github-notifier] Problem connecting to the server")
              (setq github-notifier-unread-count nil))
     (let ((old-count github-notifier-unread-count)
