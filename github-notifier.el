@@ -191,7 +191,6 @@ will return an API."
       ))
   ;; Debug
   ;; (display-buffer (current-buffer))
-  ;; elfeed curl handler doesn't want buffer killed
   (kill-buffer)
   (when github-notifier-mode
     (setq github-notifier-update-timer
@@ -207,7 +206,6 @@ will return an API."
                                                   "?participating=true")) t)))
       (condition-case error-data
           ;;(url-retrieve url #'github-notifier-update-cb nil t t)
-          ;;(elfeed-curl-retrieve url #'github-notifier-update-cb :headers url-request-extra-headers :method "GET")
           (elfeed-curl-retrieve url #'github-notifier-elfeed-cb :headers url-request-extra-headers :method "GET")
         (error
          (message "Error retrieving github notification from %s: %s" url error-data)
