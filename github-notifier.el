@@ -32,6 +32,9 @@
 (require 'url)
 (require 'json)
 
+;; let's use elfeed's curl back end to get away from url-retrieve stalls
+(require 'elfeed)
+
 (defgroup github-notifier nil
   "Github Notifier"
   :group 'comm)
@@ -168,7 +171,8 @@ will return an API."
       ))
   ;; Debug
   ;; (display-buffer (current-buffer))
-  (kill-buffer)
+  ;; elfeed curl handler doesn't want buffer killed
+  ;;(kill-buffer)
   (when github-notifier-mode
     (setq github-notifier-update-timer
           (run-at-time github-notifier-update-interval nil #'github-notifier-update))))
@@ -182,7 +186,8 @@ will return an API."
                                                 (when github-notifier-only-participating
                                                   "?participating=true")) t)))
       (condition-case error-data
-          (url-retrieve url #'github-notifier-update-cb nil t t)
+          ;;(url-retrieve url #'github-notifier-update-cb nil t t)
+          (elfeed-curl-retrieve url #'github-notifier-update :headers url-request-extra-headers :method "GET")
         (error
          (message "Error retrieving github notification from %s: %s" url error-data)
          (when github-notifier-mode
