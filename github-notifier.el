@@ -150,8 +150,8 @@ will return an API."
 (defun github-notifier-skeeto-curl-cb (_status)
   ;; elfeed compatible notifications json parsing cb
   (if (or (not _status)
-          (not (eq elfeed-curl-status-code 200)))
-      (progn (message "[github-notifier] Problem connecting to the server")
+          (not (eq skeeto-curl-status-code 200)))
+      (progn (message "[github-notifier] Problem connecting to the server (status: %d)" skeeto-curl-status-code)
              (setq github-notifier-unread-count nil))
     (let ((old-count github-notifier-unread-count)
           (old-json github-notifier-unread-json))
