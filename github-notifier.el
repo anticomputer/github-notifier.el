@@ -33,7 +33,7 @@
 (require 'json)
 
 ;; let's use elfeed's curl back end to get away from url-retrieve stalls
-(require 'elfeed)
+(require 'skeeto-curl)
 
 (defgroup github-notifier nil
   "Github Notifier"
@@ -147,7 +147,7 @@ will return an API."
 ;;
 ;; Maybe we can try to invoke curl(1) as asynchronous process.
 
-(defun github-notifier-elfeed-cb (_status)
+(defun github-notifier-skeeto-curl-cb (_status)
   ;; elfeed compatible notifications json parsing cb
   (if (or (not _status)
           (not (eq elfeed-curl-status-code 200)))
@@ -208,7 +208,7 @@ will return an API."
                                                   "?participating=true")) t)))
       (condition-case error-data
           ;;(url-retrieve url #'github-notifier-update-cb nil t t)
-          (elfeed-curl-retrieve url #'github-notifier-elfeed-cb :headers url-request-extra-headers :method "GET")
+          (skeeto-curl-retrieve url #'github-notifier-skeeto-curl-cb :headers url-request-extra-headers :method "GET")
         (error
          (message "Error retrieving github notification from %s: %s" url error-data)
          (when github-notifier-mode
