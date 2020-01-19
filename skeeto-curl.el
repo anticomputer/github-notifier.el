@@ -35,26 +35,26 @@
 ;; will appear in content, so I can use it to identify the end of each
 ;; request.
 
+;; this code was lifted and modified from: https://github.com/skeeto/elfeed
+
 ;;; Code:
 
 (require 'url)
 (require 'cl-lib)
-(require 'elfeed-lib)
-(require 'elfeed-log)
 
 (defcustom skeeto-curl-program-name "curl"
   "Name/path by which to invoke the curl program."
-  :group 'skeeto
+  :group 'skeeto-curl
   :type 'string)
 
 (defcustom skeeto-curl-max-connections 16
   "Maximum number of concurrent fetches."
-  :group 'skeeto
+  :group 'skeeto-curl
   :type 'integer)
 
 (defcustom skeeto-curl-timeout 30
   "Maximum number of seconds a fetch is allowed to take once started."
-  :group 'skeeto
+  :group 'skeeto-curl
   :type 'integer)
 
 (defcustom skeeto-curl-extra-arguments ()
@@ -63,7 +63,7 @@ These extra arguments are appended after Elfeed's own arguments,
 and care must be taken to not interfere with Elfeed's needs. The
 guideline is to avoid arguments that change anything about cURL's
 output format."
-  :group 'skeeto
+  :group 'skeeto-curl
   :type '(repeat string))
 
 (defvar skeeto-curl-queue ()
